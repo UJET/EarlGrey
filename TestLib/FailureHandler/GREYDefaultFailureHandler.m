@@ -19,6 +19,7 @@
 #import <XCTest/XCTest.h>
 
 #import "GREYFailureScreenshotter.h"
+#import "GREYFatalAsserts.h"
 #import "GREYThrowDefines.h"
 #import "GREYErrorConstants.h"
 #import "GREYFrameworkException.h"
@@ -65,7 +66,7 @@
   GREYFailureScreenshots *screenshotPaths =
       [GREYFailureScreenshotSaver saveFailureScreenshotsInDictionary:appScreenshots
                                                          toDirectory:screenshotDir];
-  NSAssert(screenshotPaths, @"Screenshots must be present");
+  GREYFatalAssertWithMessage(screenshotPaths, @"Screenshots must be present");
   return screenshotPaths;
 }
 
@@ -85,7 +86,7 @@
   for (NSString *key in screenshotPaths.allKeys) {
     [output appendFormat:@"\n%@: %@\n", key, screenshotPaths[key]];
   }
-  [output appendString:GREYAppUIHierarchyFromException(exception)];
+  [output appendString:GREYAppUIHierarchyFromException(exception, details)];
   return output;
 }
 

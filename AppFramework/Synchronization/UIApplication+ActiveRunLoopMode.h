@@ -1,5 +1,5 @@
 //
-// Copyright 2020 Google Inc.
+// Copyright 2017 Google Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,19 +14,17 @@
 // limitations under the License.
 //
 
-#import <Foundation/Foundation.h>
-
-@class GREYFrameworkException;
+#import <UIKit/UIKit.h>
 
 /**
- * @return The hierarchy string of all the windows. Does not include the legend.
- *
- * @param exception The exception containing the raw UI Hierarchy in its userInfo dictionary.
- * @param details   The exception details to check for certain keys being present.
+ * EarlGrey specific additions for tracking runloop mode changes.
  */
-NSString *GREYAppUIHierarchyFromException(GREYFrameworkException *exception, NSString *details);
+@interface UIApplication (ActiveRunLoopMode)
 
 /**
- * @return The stack trace if the failure happened in an Objective-C test failure.
+ * @return Active mode for the main runloop that was pushed by one of the push runloop methods.
+ *        May return @c nil when no mode was pushed.
  */
-NSString *GREYTestStackTrace(void);
+- (NSString *)grey_activeRunLoopMode;
+
+@end
