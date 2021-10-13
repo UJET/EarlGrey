@@ -17,7 +17,6 @@
 #import "GREYElementInteraction.h"
 #import "GREYConfigKey.h"
 #import "GREYHostBackgroundDistantObject.h"
-#import "GREYWaitFunctions.h"
 #import "EarlGrey.h"
 #import "GREYHostApplicationDistantObject+BasicInteractionTest.h"
 #import "GREYHostApplicationDistantObject+RemoteTest.h"
@@ -361,6 +360,28 @@
 
   [[[EarlGrey selectElementWithMatcher:grey_accessibilityLabel(@"Switch")]
       performAction:grey_turnSwitchOn(NO)] assertWithMatcher:grey_switchWithOnState(NO)];
+}
+
+/**
+ * Ensure basic interaction with a switch using a short tap.
+ */
+- (void)testInteractionWithSwitchWithShortTap {
+  [self openTestViewNamed:@"Switch Views"];
+  [[EarlGrey selectElementWithMatcher:grey_allOf(grey_accessibilityID(@"switch1"),
+                                                 grey_interactable(), nil)]
+      performAction:grey_turnSwitchOnWithShortTap(NO)];
+
+  [[EarlGrey selectElementWithMatcher:grey_allOf(grey_accessibilityID(@"switch1"),
+                                                 grey_interactable(), nil)]
+      performAction:grey_turnSwitchOnWithShortTap(YES)];
+
+  [[EarlGrey selectElementWithMatcher:grey_allOf(grey_accessibilityID(@"switch1"),
+                                                 grey_interactable(), nil)]
+      performAction:grey_turnSwitchOnWithShortTap(YES)];
+
+  [[EarlGrey selectElementWithMatcher:grey_allOf(grey_accessibilityID(@"switch1"),
+                                                 grey_interactable(), nil)]
+      performAction:grey_turnSwitchOnWithShortTap(NO)];
 }
 
 /**
@@ -801,6 +822,23 @@
                                        forConfigKey:kGREYConfigKeySynchronizationEnabled];
   [[EarlGrey selectElementWithMatcher:grey_accessibilityLabel(@"AnimationStatus")]
       assertWithMatcher:grey_text(@"Paused")];
+  [[GREYConfiguration sharedConfiguration] setValue:@(YES)
+                                       forConfigKey:kGREYConfigKeySynchronizationEnabled];
+}
+
+/**
+ * Checks that using the wait and assert-block API synchronizes correctly.
+ */
+- (void)testWaitAndAssertBlock {
+  [self openTestViewNamed:@"Animations"];
+  [[EarlGrey selectElementWithMatcher:grey_accessibilityLabel(@"AnimationControl")]
+      performAction:grey_tap()];
+  GREYWaitAndAssertBlock(@"Confirm Animations finished", ^void(void) {
+    [[GREYConfiguration sharedConfiguration] setValue:@(NO)
+                                         forConfigKey:kGREYConfigKeySynchronizationEnabled];
+    [[EarlGrey selectElementWithMatcher:grey_accessibilityLabel(@"AnimationStatus")]
+        assertWithMatcher:grey_text(@"Paused")];
+  });
   [[GREYConfiguration sharedConfiguration] setValue:@(YES)
                                        forConfigKey:kGREYConfigKeySynchronizationEnabled];
 }

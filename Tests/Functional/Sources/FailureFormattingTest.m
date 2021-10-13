@@ -123,19 +123,19 @@
   [self openTestViewNamed:@"Animations"];
   [[EarlGrey selectElementWithMatcher:grey_text(@"Basic Views")] assertWithMatcher:grey_notNil()];
 
-  NSString *expectedDetails = @"Interaction cannot continue because the desired element was not "
-                              @"found.\n"
+  NSString *expectedDetails = @"Failed Assertion:\n"
+                              @"assertWithMatcher:isNotNil\n"
                               @"\n"
-                              @"Check if the element exists in the UI hierarchy printed below. If "
-                              @"it exists, adjust the matcher so that it accurately matches "
-                              @"the element.\n"
+                              @"Interaction cannot continue because the desired element was not "
+                              @"found.\n"
                               @"\n"
                               @"Element Matcher:\n"
                               @"((kindOfClass('UILabel') || kindOfClass('UITextField') || "
                               @"kindOfClass('UITextView')) && hasText('Basic Views'))\n"
                               @"\n"
-                              @"Failed Assertion:\n"
-                              @"assertWithMatcher:isNotNil";
+                              @"Check if the element exists in the UI hierarchy printed below. If "
+                              @"it exists, adjust the matcher so that it accurately matches "
+                              @"the element.\n";
   XCTAssertTrue([_handler.details containsString:expectedDetails],
                 @"Expected info does not appear in the actual exception details:\n\n"
                 @"========== expected info ===========\n%@\n\n"
@@ -163,24 +163,24 @@
  */
 - (void)testSearchNotFoundAssertionErrorDescription {
   [self openTestViewNamed:@"Scroll Views"];
-  id<GREYMatcher> matcher = grey_allOf(grey_accessibilityLabel(@"Label 2"), grey_interactable(),
-                                       grey_sufficientlyVisible(), nil);
+  id<GREYMatcher> matcher =
+      grey_allOf(grey_accessibilityLabel(@"Label 2"), grey_sufficientlyVisible(), nil);
   [[[EarlGrey selectElementWithMatcher:matcher]
          usingSearchAction:grey_scrollInDirection(kGREYDirectionDown, 50)
       onElementWithMatcher:grey_accessibilityLabel(@"Invalid Scroll View")]
       assertWithMatcher:grey_sufficientlyVisible()];
 
   NSString *expectedDetails =
+      @"Failed Assertion:\n"
+      @"assertWithMatcher:sufficientlyVisible(Expected: 0.750000, Actual: 0.000000)\n"
+      @"\n"
       @"Search action failed. Look at the underlying error.\n"
       @"\n"
       @"Element Matcher:\n"
       @"(((respondsToSelector(isAccessibilityElement) && "
       @"isAccessibilityElement) && accessibilityLabel('Label 2')) && "
-      @"interactable Point:{nan, nan} && sufficientlyVisible(Expected: "
+      @"sufficientlyVisible(Expected: "
       @"0.750000, Actual: 0.000000))\n"
-      @"\n"
-      @"Failed Assertion:\n"
-      @"assertWithMatcher:sufficientlyVisible(Expected: 0.750000, Actual: 0.000000)\n"
       @"\n"
       @"Search Action:";
   XCTAssertTrue([_handler.details containsString:expectedDetails],
@@ -196,8 +196,8 @@
  */
 - (void)testSearchNotFoundActionErrorDescription {
   [self openTestViewNamed:@"Scroll Views"];
-  id<GREYMatcher> matcher = grey_allOf(grey_accessibilityLabel(@"Label 2"), grey_interactable(),
-                                       grey_sufficientlyVisible(), nil);
+  id<GREYMatcher> matcher =
+      grey_allOf(grey_accessibilityLabel(@"Label 2"), grey_sufficientlyVisible(), nil);
   [[[EarlGrey selectElementWithMatcher:matcher]
          usingSearchAction:grey_scrollInDirection(kGREYDirectionDown, 50)
       onElementWithMatcher:grey_accessibilityLabel(@"Invalid Scroll View")]
@@ -208,7 +208,7 @@
                               @"Element Matcher:\n"
                               @"(((respondsToSelector(isAccessibilityElement) && "
                               @"isAccessibilityElement) && accessibilityLabel('Label 2')) && "
-                              @"interactable Point:{nan, nan} && sufficientlyVisible(Expected: "
+                              @"sufficientlyVisible(Expected: "
                               @"0.750000, Actual: 0.000000))\n"
                               @"\n"
                               @"Failed Action:\nTap\n"
@@ -262,8 +262,8 @@
  */
 - (void)testTimeoutErrorDescription {
   [self openTestViewNamed:@"Scroll Views"];
-  id<GREYMatcher> matcher = grey_allOf(grey_accessibilityLabel(@"Label 2"), grey_interactable(),
-                                       grey_sufficientlyVisible(), nil);
+  id<GREYMatcher> matcher =
+      grey_allOf(grey_accessibilityLabel(@"Label 2"), grey_sufficientlyVisible(), nil);
   [[GREYConfiguration sharedConfiguration] setValue:@(1)
                                        forConfigKey:kGREYConfigKeyInteractionTimeoutDuration];
   [[[EarlGrey selectElementWithMatcher:matcher]
@@ -279,7 +279,7 @@
       @"Element Matcher:\n"
       @"(((respondsToSelector(isAccessibilityElement) && "
       @"isAccessibilityElement) && accessibilityLabel('Label 2')) && "
-      @"interactable Point:{nan, nan} && sufficientlyVisible(Expected: "
+      @"sufficientlyVisible(Expected: "
       @"0.750000, Actual: 0.000000))\n"
       @"\n"
       @"Failed Assertion:\n"
@@ -495,13 +495,13 @@
          usingSearchAction:grey_scrollInDirection(kGREYDirectionRight, 100)
       onElementWithMatcher:grey_keyWindow()] assertWithMatcher:grey_notNil() error:nil];
   NSString *expectedDetailWrappedError =
+      @"Failed Assertion:\n"
+      @"assertWithMatcher:isNotNil\n"
+      @"\n"
       @"Search action failed. Look at the underlying error.\n"
       @"\n"
       @"Element Matcher:\n"
       @"(respondsToSelector(accessibilityIdentifier) && accessibilityID('Invalid'))\n"
-      @"\n"
-      @"Failed Assertion:\n"
-      @"assertWithMatcher:isNotNil\n"
       @"\n"
       @"Search Action:";
   NSString *expectedDetailUnderlyingError =
@@ -532,9 +532,13 @@
  **/
 - (void)testAssertionDefineMacros {
   GREYFail(@"Foo");
-  XCTAssertEqualObjects(_handler.details, @"Foo\n");
+  XCTAssertTrue([_handler.details
+      containsString:@"A GREYFail call was hit. Look at the Test Log for more details.\n"]);
+  XCTAssertTrue([_handler.details containsString:@"Foo\n"]);
   GREYFail(@"Foo: %@", @"Bar");
-  XCTAssertEqualObjects(_handler.details, @"Foo: Bar\n");
+  XCTAssertTrue([_handler.details
+      containsString:@"A GREYFail call was hit. Look at the Test Log for more details.\n"]);
+  XCTAssertTrue([_handler.details containsString:@"Foo: Bar\n"]);
   GREYFailWithDetails(@"Foo", @"Bar");
   XCTAssertEqualObjects(_handler.details, @"Foo\n\nBar\n");
   GREYFailWithDetails(@"Foo", @"Bar: %@", @"Baz");
